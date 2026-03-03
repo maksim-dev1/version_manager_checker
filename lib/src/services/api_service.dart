@@ -26,7 +26,8 @@ class ApiService {
   }) : _serverUrl = serverUrl.endsWith('/')
            ? serverUrl.substring(0, serverUrl.length - 1)
            : serverUrl,
-       _apiKey = apiKey,
+       // Убираем пробелы и переносы строки — иначе HTTP-заголовок будет невалиден
+       _apiKey = apiKey.trim(),
        _timeout = timeout,
        _customHeaders = customHeaders,
        _logger = logger;
@@ -82,19 +83,17 @@ class ApiService {
     _logger.debug('← ${response.statusCode} ${response.reasonPhrase}');
     _logger.debug('← Body: ${response.body}');
 
-    // Парсинг ответа
-    Map<String, dynamic> json;
-    try {
-      json = jsonDecode(response.body) as Map<String, dynamic>;
-    } catch (e) {
-      throw ParseException(
-        'Не удалось разобрать ответ сервера: ${response.body}',
-        e,
-      );
-    }
-
-    // Успешный ответ
+    // Успешный ответ — парсим JSON
     if (response.statusCode == 200) {
+      late Map<String, dynamic> json;
+      try {
+        json = jsonDecode(response.body) as Map<String, dynamic>;
+      } catch (e) {
+        throw ParseException(
+          'Не удалось разобрать ответ сервера: ${response.body}',
+          e,
+        );
+      }
       try {
         return CheckResponse.fromJson(json);
       } catch (e) {
@@ -102,8 +101,21 @@ class ApiService {
       }
     }
 
-    // Ошибка API
-    throw ApiException.fromJson(response.statusCode, json);
+    // Ошибка — пробуем разобрать как JSON, иначе plain text
+    Map<String, dynamic>? errorJson;
+    try {
+      errorJson = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (_) {
+      // Сервер вернул plain text (например, ошибка до нашего route handler)
+      throw ApiException(
+        errorCode: 'server_error',
+        statusCode: response.statusCode,
+        message: response.body.isNotEmpty
+            ? response.body
+            : 'HTTP ${response.statusCode}',
+      );
+    }
+    throw ApiException.fromJson(response.statusCode, errorJson);
   }
 
   /// Закрывает HTTP-клиент.

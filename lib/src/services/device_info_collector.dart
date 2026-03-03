@@ -256,11 +256,14 @@ class DeviceInfoCollector {
     }
   }
 
-  /// Получает версию Flutter.
+  /// Получает версию Dart SDK.
   String? _getFlutterVersion() {
-    // Через dart:io нельзя получить версию Flutter напрямую,
-    // но можно вернуть версию Dart SDK
-    return Platform.version.split(' ').first;
+    if (kIsWeb) return null;
+    try {
+      return Platform.version.split(' ').first;
+    } catch (_) {
+      return null;
+    }
   }
 }
 
