@@ -81,6 +81,19 @@ class VersionChecker {
   /// `null` если проверка ещё не выполнялась.
   CheckResponse? get lastResponse => _lastResponse;
 
+  /// Последняя ошибка проверки.
+  /// `null` если проверка ещё не выполнялась или была успешной.
+  Object? _lastCheckError;
+
+  /// Последняя ошибка проверки (или `null` если всё хорошо).
+  Object? get lastCheckError => _lastCheckError;
+
+  /// Была ли попытка проверки (успешная или нет).
+  bool _checkAttempted = false;
+
+  /// Была ли когда-либо совершена попытка проверки.
+  bool get checkAttempted => _checkAttempted;
+
   VersionChecker._({
     required String serverUrl,
     required String namespace,
@@ -169,6 +182,8 @@ class VersionChecker {
         return await _instance!.check();
       } catch (e, stackTrace) {
         logger.error('Ошибка автоматической проверки: $e');
+        _instance!._checkAttempted = true;
+        _instance!._lastCheckError = e;
         cfg.onError?.call(e, stackTrace);
         return null;
       }
@@ -235,6 +250,8 @@ class VersionChecker {
     _logger.info('Ответ: ${response.status.name} — ${response.message}');
 
     _lastResponse = response;
+    _checkAttempted = true;
+    _lastCheckError = null;
     return response;
   }
 

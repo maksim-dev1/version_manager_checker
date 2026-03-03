@@ -124,14 +124,30 @@ class _VersionCheckerBuilderState extends State<VersionCheckerBuilder> {
       return;
     }
 
+    final checker = VersionChecker.instance;
+
+    // Если initialize() уже совершал попытку (успешную или нет) — не дублируем запрос.
+    if (checker.checkAttempted) {
+      final response = checker.lastResponse;
+      if (response != null) {
+        setState(() => _state = VersionCheckCompleted(response));
+        _handleResponse(response);
+      } else {
+        // init-проверка уже упала — показываем child (graceful degradation)
+        setState(() => _state = VersionCheckError(checker.lastCheckError ?? Exception('check failed')));
+        if (checker.lastCheckError != null) {
+          widget.onError?.call(context, checker.lastCheckError!);
+        }
+      }
+      return;
+    }
+
     try {
-      // Если при инициализации уже была проверка — используем кэш.
-      var response = VersionChecker.instance.lastResponse;
-      response ??= await VersionChecker.instance.check();
+      final response = await checker.check();
 
       if (!mounted) return;
 
-      setState(() => _state = VersionCheckCompleted(response!));
+      setState(() => _state = VersionCheckCompleted(response));
 
       // Обработка результата
       _handleResponse(response);
