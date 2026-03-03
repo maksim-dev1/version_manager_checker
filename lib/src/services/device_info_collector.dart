@@ -205,7 +205,9 @@ class DeviceInfoCollector {
     final androidMatch = RegExp(r'Android ([\d.]+)').firstMatch(ua);
     if (androidMatch != null) return 'Android ${androidMatch.group(1)}';
     // iOS / iPadOS
-    final iosMatch = RegExp(r'(?:iPhone|iPad); CPU.*?OS ([\d_]+)').firstMatch(ua);
+    final iosMatch = RegExp(
+      r'(?:iPhone|iPad); CPU.*?OS ([\d_]+)',
+    ).firstMatch(ua);
     if (iosMatch != null) {
       return 'iOS ${iosMatch.group(1)!.replaceAll('_', '.')}';
     }
@@ -372,17 +374,23 @@ class DeviceInfoCollector {
   Future<_PlatformInfo> _collectMacOsInfo() async {
     final info = await _deviceInfoPlugin.macOsInfo;
     return _PlatformInfo(
-      osVersion: '${info.majorVersion}.${info.minorVersion}.${info.patchVersion}',
+      osVersion:
+          '${info.majorVersion}.${info.minorVersion}.${info.patchVersion}',
       deviceModel: info.model,
-      cpuArchitecture: _collectExtendedInfo ? info.cpuFrequency.toString() : null,
-      totalRamMb: _collectExtendedInfo ? info.memorySize ~/ (1024 * 1024) : null,
+      cpuArchitecture: _collectExtendedInfo
+          ? info.cpuFrequency.toString()
+          : null,
+      totalRamMb: _collectExtendedInfo
+          ? info.memorySize ~/ (1024 * 1024)
+          : null,
     );
   }
 
   Future<_PlatformInfo> _collectWindowsInfo() async {
     final info = await _deviceInfoPlugin.windowsInfo;
     return _PlatformInfo(
-      osVersion: '${info.majorVersion}.${info.minorVersion}.${info.buildNumber}',
+      osVersion:
+          '${info.majorVersion}.${info.minorVersion}.${info.buildNumber}',
       deviceModel: info.productName,
       totalRamMb: _collectExtendedInfo ? info.systemMemoryInMegabytes : null,
     );

@@ -134,7 +134,11 @@ class _VersionCheckerBuilderState extends State<VersionCheckerBuilder> {
         _handleResponse(response);
       } else {
         // init-проверка уже упала — показываем child (graceful degradation)
-        setState(() => _state = VersionCheckError(checker.lastCheckError ?? Exception('check failed')));
+        setState(
+          () => _state = VersionCheckError(
+            checker.lastCheckError ?? Exception('check failed'),
+          ),
+        );
         if (checker.lastCheckError != null) {
           widget.onError?.call(context, checker.lastCheckError!);
         }
