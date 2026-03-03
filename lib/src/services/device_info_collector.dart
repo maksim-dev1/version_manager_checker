@@ -1,7 +1,7 @@
-// dart:io используется ТОЛЬКО на нативных платформах (не web).
-// На web используем defaultTargetPlatform + device_info_plus webBrowserInfo.
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:io' show Platform;
+// Conditional import: на web подключается stub без dart:io,
+// на нативных платформах — реализация через dart:io.
+import 'platform_helper_stub.dart'
+    if (dart.library.io) 'platform_helper_native.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -291,11 +291,7 @@ class DeviceInfoCollector {
       // Версия Dart SDK (только нативные)
       String? dartVersion;
       if (_collectExtendedInfo) {
-        try {
-          dartVersion = Platform.version.split(' ').first;
-        } catch (_) {
-          dartVersion = null;
-        }
+        dartVersion = getNativeDartVersion();
       }
 
       return DeviceInfo(
