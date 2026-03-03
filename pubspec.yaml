@@ -1,0 +1,26 @@
+name: version_manager_checker
+description: >
+  Flutter SDK для проверки версий приложений через Version Manager.
+  Автоматический сбор информации об устройстве, управление частотой
+  показа рекомендаций обновления, готовые UI-компоненты.
+version: 1.0.0
+publish_to: "none"
+
+environment:
+  sdk: "^3.8.0"
+  flutter: "^3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  device_info_plus: ^12.3.0
+  package_info_plus: ^9.0.0
+  shared_preferences: ^2.5.4
+  url_launcher: ^6.3.1
+  connectivity_plus: ^6.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ">=3.0.0 <7.0.0"
