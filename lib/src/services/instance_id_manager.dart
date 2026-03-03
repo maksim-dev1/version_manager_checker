@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +22,7 @@ class InstanceIdManager {
   /// Получает или генерирует instance ID.
   Future<String?> getInstanceId() async {
     try {
-      if (!kIsWeb && Platform.isIOS) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         return await _getIosInstanceId();
       }
 
